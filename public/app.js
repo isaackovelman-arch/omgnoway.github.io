@@ -190,11 +190,25 @@ function feDownload() {
   toast(`Downloaded "${cur.name}"`);
 }
 
-/* Save entire DevSpace app */
+/* Save entire DevSpace app — fetches CSS+JS and inlines them */
 function saveApp() {
-  const src = '<!DOCTYPE html>' + document.documentElement.outerHTML;
-  dlF(src, 'devspace.html', 'text/html');
-  toast('App saved!');
+  Promise.all([
+    fetch('/style.css').then(r => r.text()),
+    fetch('/app.js').then(r => r.text())
+  ]).then(function(results) {
+    var css = results[0];
+    var js = results[1];
+    var src = document.documentElement.outerHTML;
+    // Replace external link/script tags with inlined versions
+    src = src.replace('<link rel="stylesheet" href="/style.css">', '<style>\n' + css + '\n</style>');
+    src = src.replace('<script src="/app.js"></script>', '<script>\n' + js + '\n</script>');
+    dlF('<!DOCTYPE html>' + src, 'devspace.html', 'text/html');
+    toast('App saved!');
+  }).catch(function(e) {
+    // Fallback — no inlining
+    dlF('<!DOCTYPE html>' + document.documentElement.outerHTML, 'devspace.html', 'text/html');
+    toast('App saved (basic)!');
+  });
 }
 
 /* Input handler */
@@ -319,9 +333,7 @@ function feCloak() {
 
 /* ── CLOAKERS PAGE ───────────────────────────────────────────────────────── */
 function buildProxyPage(targetUrl) {
-  // Builds a full self-contained proxy page using the server /proxy/ route
-  // Identical behaviour to the server: HTML rewriting + XHR/fetch/click/form intercept
-  const lines = [
+  var lines = [
     '<!DOCTYPE html><html><head><meta charset="UTF-8">',
     '<style>',
     '*{margin:0;padding:0;box-sizing:border-box}',
@@ -338,10 +350,10 @@ function buildProxyPage(targetUrl) {
     '  <button id="pback" onclick="goBack()">&#8592; Back</button>',
     '  <div id="purl">Loading...</div>',
     '</div>',
-    '<iframe id="pframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals"></iframe>',
+    '<iframe id="pframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals allow-downloads"></iframe>',
   ];
 
-  const scriptBody = [
+  var scriptBody = [
     'var BASE=' + JSON.stringify(targetUrl) + ';',
     'var HIST=[];',
     '',
@@ -363,35 +375,61 @@ function buildProxyPage(targetUrl) {
     '  BASE=target;',
     '  document.getElementById("purl").textContent=target;',
     '  setBar("65%");',
-    '  var proxyPath=enc(target);',
     '  var f=document.getElementById("pframe");',
     '  f.onload=function(){setBar("100%");setTimeout(function(){setBar("0%");},400);};',
-    '  f.src=proxyPath;',
+    '  f.src=enc(target);',
     '}',
     '',
     'function goBack(){',
     '  if(HIST.length){loadUrl(HIST.pop(),false);}',
     '}',
     '',
-    '// intercept iframe navigations via postMessage',
-    'window.addEventListener("message",function(e){',
-    '  if(e.data&&e.data.type==="proxyNav"){loadUrl(absUrl(e.data.url));}',
-    '});',
+    '// Route downloads through the proxy server so browser can save them',
+    'function handleDownload(href,filename){',
+    '  var a=document.createElement("a");',
+    '  a.href=enc(href);',
+    '  if(filename)a.download=filename;',
+    '  a.style.display="none";',
+    '  document.body.appendChild(a);',
+    '  a.click();',
+    '  setTimeout(function(){document.body.removeChild(a);},100);',
+    '}',
     '',
-    '// intercept same-origin clicks inside iframe via MutationObserver on load',
+    '// Intercept clicks inside the iframe',
     'document.getElementById("pframe").addEventListener("load",function(){',
     '  try{',
     '    var fd=this.contentDocument;',
     '    if(!fd)return;',
     '    fd.addEventListener("click",function(ev){',
     '      var a=ev.target.closest("a");',
-    '      if(!a||!a.href)return;',
-    '      var href=a.getAttribute("href");',
-    '      if(!href||href.startsWith("#")||href.startsWith("javascript:")||href.startsWith("mailto:"))return;',
-    '      ev.preventDefault();',
-    '      loadUrl(absUrl(a.href,BASE));',
+    '      if(!a)return;',
+    '      var href=a.href;',
+    '      if(!href||href.startsWith("javascript:")||href.startsWith("mailto:"))return;',
+    '      // Download link — route through proxy server',
+    '      if(a.hasAttribute("download")||a.getAttribute("target")==="_blank"||',
+    '         /\\.(pdf|zip|exe|dmg|pkg|msi|apk|ipa|mp4|mp3|docx?|xlsx?|pptx?|png|jpg|gif|svg|csv|txt|json|xml|gz|tar|rar|7z)$/i.test(href)){',
+    '        ev.preventDefault();',
+    '        var abs=absUrl(href,BASE);',
+    '        var dl=document.createElement("a");',
+    '        dl.href=enc(abs);',
+    '        dl.download=a.getAttribute("download")||"";',
+    '        dl.style.display="none";',
+    '        document.body.appendChild(dl);',
+    '        dl.click();',
+    '        setTimeout(function(){document.body.removeChild(dl);},100);',
+    '        return;',
+    '      }',
+    '      // Normal navigation',
+    '      if(!href.startsWith("#")){',
+    '        ev.preventDefault();',
+    '        loadUrl(absUrl(href,BASE));',
+    '      }',
     '    },true);',
     '  }catch(e){}',
+    '});',
+    '',
+    'window.addEventListener("message",function(e){',
+    '  if(e.data&&e.data.type==="proxyNav"){loadUrl(absUrl(e.data.url));}',
     '});',
     '',
     'loadUrl(BASE,false);',
@@ -401,6 +439,8 @@ function buildProxyPage(targetUrl) {
   lines.push('</body></html>');
   return lines.join('\n');
 }
+
+
 
 function setSt(dotId, stId, cls, msg) {
   const d = document.getElementById(dotId);
