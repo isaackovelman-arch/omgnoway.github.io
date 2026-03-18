@@ -184,7 +184,7 @@ http.createServer((req, res) => {
 
       const contentType = result.headers['content-type'] || '';
       const safeHeaders = { 'content-type': contentType };
-      ['cache-control','vary','last-modified','etag'].forEach(h => {
+      ['cache-control','vary','last-modified','etag','content-disposition','content-length'].forEach(h => {
         if (result.headers[h]) safeHeaders[h] = result.headers[h];
       });
 
