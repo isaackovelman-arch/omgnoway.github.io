@@ -192,17 +192,8 @@ function feDownload() {
 
 /* Save entire DevSpace app */
 function saveApp() {
-  try {
-    const x = new XMLHttpRequest();
-    x.open('GET', location.href, false);
-    x.send();
-    if (x.status === 200 || x.status === 0) {
-      dlF(x.responseText, 'devspace.html', 'text/html');
-      toast('App saved!');
-      return;
-    }
-  } catch(e) {}
-  dlF('<!DOCTYPE html>' + document.documentElement.outerHTML, 'devspace.html', 'text/html');
+  const src = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+  dlF(src, 'devspace.html', 'text/html');
   toast('App saved!');
 }
 
