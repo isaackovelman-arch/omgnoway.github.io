@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevSpace</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ── Lock Screen ──────────────────────────────────────────────────────── -->
+<div id="lock">
+  <h1>DevSpace</h1>
+  <input id="pw-input" type="password" placeholder="Enter password" autocomplete="off"/>
+  <div id="lock-err"></div>
+  <button onclick="checkPW()">Unlock</button>
+</div>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────── -->
+<div id="nav">
+  <span class="nav-logo">DS</span>
+  <button class="nav-tab active" data-t="code" onclick="switchTab('code')">
+    <span class="nav-dot" style="background:#5b8aff"></span>Code
+  </button>
+  <button class="nav-tab" data-t="cloak" onclick="switchTab('cloak')">
+    <span class="nav-dot" style="background:#22d3ee"></span>Cloakers
+  </button>
+</div>
+
+<!-- ── Panels ───────────────────────────────────────────────────────────── -->
+<div id="panels">
+
+  <!-- CODE EDITOR -->
+  <div class="panel active" id="panel-code">
+
+    <!-- Sidebar -->
+    <div class="fe-sidebar">
+      <div class="fe-sidebar-head">
+        <span class="fe-sidebar-label">Files</span>
+        <button class="fe-add-btn" onclick="feShowNew()" title="New file">+</button>
+      </div>
+
+      <!-- New file input -->
+      <div class="fe-input-row" id="fe-new-row">
+        <input id="fe-new-inp" class placeholder="filename.js" onkeydown="feNewKey(event)" autocomplete="off"/>
+        <div class="fe-input-btns">
+          <button class="fe-input-ok" onclick="feConfirmNew()">Create</button>
+          <button class="fe-input-cancel" onclick="feHideNew()">✕</button>
+        </div>
+      </div>
+
+      <div class="fe-file-list" id="fe-file-list"></div>
+    </div>
+
+    <!-- Main editor -->
+    <div class="fe-main">
+
+      <!-- Toolbar -->
+      <div class="fe-toolbar">
+        <button class="tb-btn" onclick="feDownload()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </button>
+        <button class="tb-btn" onclick="saveApp()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Save App
+        </button>
+        <div class="tb-sep"></div>
+        <button class="tb-btn run" onclick="runCode()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run
+        </button>
+        <button class="tb-btn cloak" onclick="feCloak()" title="Open in about:blank tab">
+          &#9632; Cloak
+        </button>
+        <label class="tb-autorun">
+          <input type="checkbox" id="autorun"> Auto-run
+        </label>
+      </div>
+
+      <!-- Tabs -->
+      <div class="fe-tabs" id="fe-tabs"></div>
+
+      <!-- Editor + preview split -->
+      <div style="flex:1;display:flex;overflow:hidden;">
+
+        <!-- Editor -->
+        <div class="fe-editor-area" style="flex:1;">
+          <div id="ln-main"></div>
+          <textarea id="ta-main" spellcheck="false"
+            oninput="onInput()"
+            onkeydown="htab(event)"></textarea>
+        </div>
+
+        <!-- Preview + console -->
+        <div class="fe-right">
+          <div class="preview-head">
+            <span>Live Preview</span>
+            <span class="preview-dot"></span>
+          </div>
+          <iframe id="preview" sandbox="allow-scripts allow-same-origin allow-forms allow-modals"></iframe>
+          <div class="console-head">
+            <span>Console <span id="eb"></span></span>
+            <button class="console-clear" onclick="clearConsole()">Clear</button>
+          </div>
+          <div id="cout">
+            <div class="cempty">Console output will appear here...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOAKERS -->
+  <div class="panel" id="panel-cloak">
+    <div class="cloak-inner">
+      <div class="cloak-header">
+        <div class="cloak-title">Cloakers</div>
+        <div class="cloak-sub">Open any site disguised as a blank tab. Runs through the local proxy server — full HTML rewriting, XHR/fetch/form intercept, click navigation.</div>
+      </div>
+
+      <!-- Tab Cloaker -->
+      <div class="cloak-card">
+        <div class="cloak-card-top">
+          <div class="cloak-card-title">Tab Cloaker</div>
+          <span class="cloak-badge badge-blank">about:blank</span>
+        </div>
+        <p class="cloak-card-desc">Opens in two <code>about:blank</code> tabs. The URL bar shows nothing — looks like a completely empty page.</p>
+        <div class="cloak-label">Target URL</div>
+        <input class="cloak-input" id="cp-taburl" type="text" value="https://google.com" placeholder="https://..."/>
+        <div class="cloak-btns">
+          <button class="cloak-launch launch-blank" onclick="cpLaunchTab('cp-taburl','cp-tdot','cp-tst')">&#9632; Launch Tab</button>
+          <button class="cloak-dl" onclick="cpDownload('cp-taburl')">&#8595; Download HTML</button>
+        </div>
+        <div class="cloak-status">
+          <span class="csdot" id="cp-tdot"></span>
+          <span id="cp-tst">ready</span>
+        </div>
+      </div>
+
+      <!-- Blob Cloaker -->
+      <div class="cloak-card">
+        <div class="cloak-card-top">
+          <div class="cloak-card-title">Blob Cloaker</div>
+          <span class="cloak-badge badge-blob">blob: URL</span>
+        </div>
+        <p class="cloak-card-desc">Opens via a <code>blob:</code> URL — shows a random string of characters in the address bar. Harder to identify than <code>about:blank</code>.</p>
+        <div class="cloak-label">Target URL</div>
+        <input class="cloak-input" id="cp-bloburl" type="text" value="https://google.com" placeholder="https://..."/>
+        <div class="cloak-btns">
+          <button class="cloak-launch launch-blob" onclick="cpLaunchBlob('cp-bloburl','cp-bdot','cp-bst')">&#9632; Launch Blob</button>
+          <button class="cloak-dl" onclick="cpDownload('cp-bloburl')">&#8595; Download HTML</button>
+        </div>
+        <div class="cloak-status">
+          <span class="csdot" id="cp-bdot"></span>
+          <span id="cp-bst">ready</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /panels -->
+
+<div id="toast"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>
