@@ -27,6 +27,9 @@
   <button class="nav-tab" data-t="cloak" onclick="switchTab('cloak')">
     <span class="nav-dot" style="background:#22d3ee"></span>Cloakers
   </button>
+  <button class="nav-tab" data-t="proxy" onclick="switchTab('proxy')">
+    <span class="nav-dot" style="background:#a78bfa"></span>Proxy
+  </button>
 </div>
 
 <!-- ── Panels ───────────────────────────────────────────────────────────── -->
@@ -161,6 +164,17 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- PROXY -->
+  <div class="panel" id="panel-proxy" style="flex:1;flex-direction:column;overflow:hidden;">
+    <div style="height:36px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;">
+      <span style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);font-family:var(--font-mono);">ProxyVault</span>
+      <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--muted);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="proxy-url-bar">proxyserver-z3sq.onrender.com</div>
+      <button onclick="proxyReload()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-ui);">&#8635; Reload</button>
+      <button onclick="proxyOpen()" style="background:var(--accent);border:none;color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--font-ui);font-weight:600;">&#8599; Open Tab</button>
+    </div>
+    <iframe id="proxy-frame" src="https://proxyserver-z3sq.onrender.com" style="flex:1;border:none;width:100%;height:100%;" allow="fullscreen" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation allow-modals allow-downloads"></iframe>
   </div>
 
 </div><!-- /panels -->
