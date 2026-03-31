@@ -497,6 +497,15 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
+/* ── PROXY TAB ───────────────────────────────────────────────────────────── */
+function proxyReload() {
+  var f = document.getElementById('proxy-frame');
+  if (f) f.src = f.src;
+}
+function proxyOpen() {
+  window.open('https://proxyserver-z3sq.onrender.com', '_blank');
+}
+
 /* ── BOOT ────────────────────────────────────────────────────────────────── */
 feInit();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
