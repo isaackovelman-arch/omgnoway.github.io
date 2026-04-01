@@ -462,3 +462,45 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── PROXY TAB (ProxyVault) ──────────────────────────────────────────────── */
+#panel-proxy { background:#0e0f11; overflow:hidden; }
+.pv-wrap { position:relative; width:100%; height:100%; overflow:hidden; }
+.pv-blob { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; opacity:0.18; }
+.pv-blob-1 { width:500px;height:500px; background:#3b5bff; top:-150px;left:-100px; animation:drift1 18s ease-in-out infinite; }
+.pv-blob-2 { width:400px;height:400px; background:#a855f7; bottom:-100px;right:-50px; animation:drift2 22s ease-in-out infinite; }
+.pv-blob-3 { width:300px;height:300px; background:#06b6d4; top:40%;left:60%; animation:drift1 15s ease-in-out infinite reverse; }
+@keyframes drift1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-40px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.97)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,-30px) scale(1.08)} }
+
+#pv-loading-bar { position:absolute; top:0;left:0;right:0; height:2px; background:linear-gradient(90deg,#6c8fff,#a78bfa); z-index:200; width:0%; transition:width 0.5s ease; }
+
+#pv-overlay { display:none; position:absolute; inset:0; z-index:100; background:#0e0f11; flex-direction:column; }
+#pv-overlay.open { display:flex; }
+.pv-overlay-bar { display:flex; align-items:center; gap:10px; padding:10px 16px; background:rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.08); flex-shrink:0; }
+.pv-back-btn { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); color:#f0f0f0; border-radius:8px; padding:7px 14px; font-family:var(--font-ui); font-size:0.78rem; font-weight:500; cursor:pointer; }
+.pv-back-btn:hover { background:rgba(255,255,255,0.1); }
+.pv-overlay-url { flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:7px 14px; font-size:0.75rem; font-family:var(--font-mono); color:rgba(255,255,255,0.35); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pv-overlay-newtab { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.35); border-radius:8px; padding:7px 13px; font-size:0.75rem; font-family:var(--font-ui); font-weight:500; text-decoration:none; white-space:nowrap; }
+.pv-overlay-newtab:hover { color:#f0f0f0; }
+#pv-iframe { flex:1; border:none; width:100%; }
+
+.pv-page { position:relative; z-index:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 24px; }
+.pv-clock-wrap { text-align:center; margin-bottom:10px; }
+.pv-clock { font-family:var(--font-mono); font-size:clamp(4rem,10vw,7rem); font-weight:300; letter-spacing:-0.04em; color:#f0f0f0; line-height:1; }
+.pv-date { font-size:0.78rem; color:rgba(255,255,255,0.35); letter-spacing:0.12em; text-transform:uppercase; margin-top:8px; }
+.pv-search-wrap { width:100%; max-width:560px; margin-top:36px; }
+.pv-search-bar { display:flex; align-items:center; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.08); border-radius:50px; padding:6px 6px 6px 22px; gap:10px; backdrop-filter:blur(20px); transition:border-color .25s,box-shadow .25s; }
+.pv-search-bar:focus-within { border-color:rgba(108,143,255,0.5); box-shadow:0 0 0 4px rgba(108,143,255,0.1); }
+.pv-input { flex:1; background:transparent; border:none; outline:none; color:#f0f0f0; font-family:var(--font-ui); font-size:0.95rem; padding:10px 0; caret-color:#6c8fff; }
+.pv-input::placeholder { color:rgba(255,255,255,0.35); }
+.pv-go-btn { background:#6c8fff; color:#fff; border:none; border-radius:40px; padding:10px 22px; font-family:var(--font-ui); font-size:0.82rem; font-weight:600; cursor:pointer; }
+.pv-go-btn:hover { opacity:0.9; }
+.pv-shortcuts-wrap { margin-top:36px; width:100%; max-width:560px; }
+.pv-shortcuts-label { font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.35); text-align:center; margin-bottom:14px; font-family:var(--font-mono); }
+.pv-shortcuts { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+.pv-shortcut { display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; padding:10px 8px; border-radius:14px; border:1px solid transparent; transition:all .2s; min-width:64px; }
+.pv-shortcut:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.08); transform:translateY(-2px); }
+.pv-shortcut-icon { width:42px;height:42px; border-radius:12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#f0f0f0; font-family:var(--font-mono); }
+.pv-shortcut-label { font-size:0.68rem; color:rgba(255,255,255,0.35); font-weight:500; }
+.pv-shortcut:hover .pv-shortcut-label { color:#f0f0f0; }
