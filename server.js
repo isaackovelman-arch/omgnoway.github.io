@@ -58,11 +58,19 @@ function rewriteHtml(html, baseUrl) {
 }
 
 function rewriteCss(css, baseUrl) {
-  return css.replace(/url\((["']?)(.*?)\1\)/gi, (m, q, v) => {
+  // Rewrite url() references
+  css = css.replace(/url\((["']?)(.*?)\1\)/gi, (m, q, v) => {
     if (!v || v.startsWith('data:')) return m;
     const abs = resolveUrl(baseUrl, v);
     return abs ? `url(${q}/proxy/${encodeTarget(abs)}${q})` : m;
   });
+  // Rewrite @import "..." and @import url(...)
+  css = css.replace(/@import\s+(["'])(.*?)\1/gi, (m, q, v) => {
+    if (!v) return m;
+    const abs = resolveUrl(baseUrl, v);
+    return abs ? `@import ${q}/proxy/${encodeTarget(abs)}${q}` : m;
+  });
+  return css;
 }
 
 function fetchRemote(targetUrl, reqHeaders, cb, redirects = 0) {
@@ -147,7 +155,9 @@ http.createServer((req, res) => {
       });
       res.writeHead(result.status, safe);
       if (ct.includes('text/html')) return res.end(rewriteHtml(result.body.toString('utf8'), targetUrl));
-      if (ct.includes('text/css')) return res.end(rewriteCss(result.body.toString('utf8'), targetUrl));
+      // Also rewrite CSS by file extension even if content-type is wrong
+      const isCssExt = targetUrl.match(/\.css(\?|$)/i);
+      if (ct.includes('text/css') || isCssExt) return res.end(rewriteCss(result.body.toString('utf8'), targetUrl));
       res.end(result.body);
     });
   }
