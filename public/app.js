@@ -12,6 +12,8 @@ function switchTab(t) {
   document.querySelector('.nav-tab[data-t="' + t + '"]').classList.add('active');
   document.getElementById('panel-' + t).classList.add('active');
 }
+// Start on home
+switchTab('home');
 
 /* ── PASSWORD ────────────────────────────────────────────────────────────── */
 const PW_HASH = '3c1ca2c74f7ca958362044d125a9ff54488e68978432622dfaaa09d7d76cde2c';
@@ -152,28 +154,40 @@ function feDelFile(e, id) {
 }
 
 function feDownload() {
+  // Save current file content first
   const cur = feFiles.find(f => f.id === feActiveId);
-  if (!cur) return;
   const ta = document.getElementById('ta-main');
-  if (ta) cur.content = ta.value;
-  const ext = feExt(cur.name);
-  const mime = { html:'text/html', css:'text/css', js:'application/javascript', json:'application/json' }[ext] || 'text/plain';
-  dlF(cur.content, cur.name, mime);
-  toast('Downloaded "' + cur.name + '"');
+  if (cur && ta) cur.content = ta.value;
+  // Download ALL files one by one
+  var mimeMap = { html:'text/html', css:'text/css', js:'application/javascript', json:'application/json' };
+  var count = 0;
+  feFiles.forEach(function(f, i) {
+    setTimeout(function() {
+      var ext = feExt(f.name);
+      var mime = mimeMap[ext] || 'text/plain';
+      // Strip path prefix for filename (e.g. public/index.html -> index.html)
+      var fname = f.name.split('/').pop();
+      dlF(f.content || '', fname, mime);
+    }, i * 300); // stagger so browser doesn't block
+    count++;
+  });
+  toast('Downloading ' + count + ' file' + (count !== 1 ? 's' : '') + '...');
 }
 
 function saveApp() {
-  Promise.all([fetch('/style.css').then(r => r.text()), fetch('/app.js').then(r => r.text())])
-    .then(function(results) {
-      var src = document.documentElement.outerHTML;
-      src = src.replace('<link rel="stylesheet" href="/style.css">', '<style>\n' + results[0] + '\n</style>');
-      src = src.replace('<script src="/app.js"></script>', '<script>\n' + results[1] + '\n</script>');
-      dlF('<!DOCTYPE html>' + src, 'devspace.html', 'text/html');
-      toast('App saved!');
-    }).catch(function() {
-      dlF('<!DOCTYPE html>' + document.documentElement.outerHTML, 'devspace.html', 'text/html');
-      toast('App saved!');
-    });
+  fetch(window.location.href)
+    .then(function(r){ return r.blob(); })
+    .then(function(blob){
+      var u = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = u;
+      a.download = 'devspace.html';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(u); }, 100);
+      toast('Downloaded devspace.html!');
+    }).catch(function(e){ toast('Error: ' + e.message); });
 }
 
 function onInput() {
@@ -322,14 +336,11 @@ function buildProxyPage(targetUrl) {
     '      var a=ev.target.closest("a");if(!a)return;',
     '      var href=a.href;',
     '      if(!href||href.startsWith("javascript:")||href.startsWith("mailto:"))return;',
-    '      if(a.hasAttribute("download")){',
+    '      if(a.hasAttribute("download")||/\\.(pdf|zip|exe|dmg|apk|mp4|mp3|docx?|xlsx?|pptx?|png|jpg|gif|svg|csv|gz|tar|rar|7z)$/i.test(href)){',
     '        ev.preventDefault();',
-    '        var dl=document.createElement("a");',
-    '        dl.href=enc(absUrl(href,BASE));',
-    '        dl.download=a.getAttribute("download")||"";',
-    '        dl.style.display="none";',
-    '        document.body.appendChild(dl);dl.click();',
-    '        setTimeout(function(){document.body.removeChild(dl);},100);',
+    '        // Open download via the proxy server URL so browser can save it',
+    '        var proxyHref=enc(absUrl(href,BASE));',
+    '        window.open(proxyHref,"_blank");',
     '      } else if(!href.startsWith("#")){',
     '        ev.preventDefault();loadUrl(absUrl(href,BASE));',
     '      }',
