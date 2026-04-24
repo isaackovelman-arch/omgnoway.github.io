@@ -21,7 +21,10 @@
 <!-- Nav -->
 <div id="nav">
   <span class="nav-logo">DS</span>
-  <button class="nav-tab active" data-t="code" onclick="switchTab('code')">
+  <button class="nav-tab" data-t="home" onclick="switchTab('home')">
+    <span class="nav-dot" style="background:#34d399"></span>Home
+  </button>
+  <button class="nav-tab" data-t="code" onclick="switchTab('code')">
     <span class="nav-dot" style="background:#5b8aff"></span>Code
   </button>
   <button class="nav-tab" data-t="cloak" onclick="switchTab('cloak')">
@@ -35,8 +38,36 @@
 <!-- Panels -->
 <div id="panels">
 
+  <!-- HOME -->
+  <div class="panel active" id="panel-home">
+    <div class="home-wrap">
+      <div class="home-header">
+        <div class="home-logo">DS</div>
+        <div class="home-title">DevSpace</div>
+        <div class="home-sub">Your all-in-one workspace</div>
+      </div>
+      <div class="home-cards">
+        <div class="home-card" onclick="switchTab('code')">
+          <div class="home-card-icon">&#128187;</div>
+          <div class="home-card-name">Code</div>
+          <div class="home-card-desc">Editor, preview &amp; console</div>
+        </div>
+        <div class="home-card" onclick="switchTab('cloak')">
+          <div class="home-card-icon">&#9632;</div>
+          <div class="home-card-name">Cloakers</div>
+          <div class="home-card-desc">Disguise tabs as blank pages</div>
+        </div>
+        <div class="home-card" onclick="switchTab('proxy')">
+          <div class="home-card-icon">&#127760;</div>
+          <div class="home-card-name">Proxy</div>
+          <div class="home-card-desc">Browse anonymously</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CODE -->
-  <div class="panel active" id="panel-code">
+  <div class="panel" id="panel-code">
     <div class="fe-sidebar">
       <div class="fe-sidebar-head">
         <span class="fe-sidebar-label">Files</span>
