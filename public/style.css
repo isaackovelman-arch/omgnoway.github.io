@@ -244,3 +244,39 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Home Page ───────────────────────────────────────────────────────────── */
+.home-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px; gap: 48px;
+  background: var(--bg);
+}
+.home-header { text-align: center; }
+.home-logo {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+  color: var(--muted); letter-spacing: 0.1em; margin-bottom: 16px;
+}
+.home-title {
+  font-size: 48px; font-weight: 800; letter-spacing: -0.04em;
+  color: var(--text); line-height: 1; margin-bottom: 10px;
+}
+.home-sub { font-size: 14px; color: var(--muted); }
+.home-cards {
+  display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+  max-width: 700px;
+}
+.home-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 28px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.2s; min-width: 180px; flex: 1;
+  text-align: center;
+}
+.home-card:hover {
+  border-color: var(--border2); background: var(--surface2);
+  transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.home-card-icon { font-size: 36px; line-height: 1; }
+.home-card-name { font-size: 16px; font-weight: 700; color: var(--text); }
+.home-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
